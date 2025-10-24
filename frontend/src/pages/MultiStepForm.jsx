@@ -55,12 +55,46 @@ const MultiStepForm = () => {
 
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
-  const handleSubmit = () => {
-    if (validateStep()) {
-      alert("Form submitted successfully!");
-      console.log(formData);
+  // const handleSubmit = () => {
+  //   if (validateStep()) {
+  //     alert("Form submitted successfully!");
+  //     console.log(formData);
+  //   }
+  // };
+
+  const handleSubmit = async () => {
+  if (!validateStep()) return;
+
+  try {
+    const res = await fetch("http://localhost:3000/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        age: formData.age,
+        address: formData.address,
+        password: formData.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      // show backend validation message
+      alert(data.message || "Failed to register");
+      return;
     }
-  };
+
+    alert("Registration successful!");
+    console.log("created user:", data.user);
+    // optional: redirect or reset form
+  } catch (err) {
+    console.error(err);
+    alert("Server error, try again later");
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-indigo-50 p-4">
